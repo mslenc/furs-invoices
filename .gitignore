@@ -1,0 +1,5 @@
+.idea
+.gradle
+out
+build
+src/main/kotlin/com/github/mslenc/furslib/runTest.kt
