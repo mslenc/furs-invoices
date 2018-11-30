@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.mslenc.furslib.FursConfig;
 import com.github.mslenc.furslib.validation.AmountValidator;
+import com.github.mslenc.furslib.validation.DateTimeValidator;
 import com.github.mslenc.furslib.validation.TaxNumberValidator;
 
 import java.math.BigDecimal;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -105,10 +107,16 @@ public class Invoice {
      */
     @JsonProperty("IssueDateTime")
     public Invoice setIssueDateTime(LocalDateTime issueDateTime) {
-        if (issueDateTime == null)
-            throw new IllegalArgumentException("Null issueDateTime");
+        this.issueDateTime = ISSUE_DATE_TIME.validate(issueDateTime);
+        return this;
+    }
 
-        this.issueDateTime = issueDateTime;
+    /**
+     * @see #setIssueDateTime(LocalDateTime)
+     */
+    @JsonIgnore
+    public Invoice setIssueDateTime(Instant issueDateTime) {
+        this.issueDateTime = ISSUE_DATE_TIME.validateAndConvert(issueDateTime);
         return this;
     }
 
@@ -581,6 +589,9 @@ public class Invoice {
 
     private static final
     TaxNumberValidator OPERATOR_TAX_NUMBER = new TaxNumberValidator("operatorTaxNumber", true);
+
+    private static final
+    DateTimeValidator ISSUE_DATE_TIME = new DateTimeValidator("issueDateTime");
 
     private static final
     AmountValidator INVOICE_AMOUNT = new AmountValidator("invoiceAmount", NO_NULLS);

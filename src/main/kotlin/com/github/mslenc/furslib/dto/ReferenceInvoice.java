@@ -1,18 +1,21 @@
 package com.github.mslenc.furslib.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.mslenc.furslib.validation.DateTimeValidator;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class ReferenceInvoice {
-    private Instant referenceInvoiceIssueDateTime;
+    private LocalDateTime referenceInvoiceIssueDateTime;
     private InvoiceIdentifier referenceInvoiceIdentifier;
 
     /**
-     * @see #setReferenceInvoiceIssueDateTime(Instant)
+     * @see #setReferenceInvoiceIssueDateTime(LocalDateTime)
      */
     @JsonProperty("ReferenceInvoiceIssueDateTime")
-    public Instant getReferenceInvoiceIssueDateTime() {
+    public LocalDateTime getReferenceInvoiceIssueDateTime() {
         return referenceInvoiceIssueDateTime;
     }
 
@@ -27,11 +30,17 @@ public class ReferenceInvoice {
      * @param referenceInvoiceIssueDateTime the new value, may not be null
      */
     @JsonProperty("ReferenceInvoiceIssueDateTime")
-    public ReferenceInvoice setReferenceInvoiceIssueDateTime(Instant referenceInvoiceIssueDateTime) {
-        if (referenceInvoiceIssueDateTime == null)
-            throw new IllegalArgumentException("null referenceInvoiceIssueDateTime");
+    public ReferenceInvoice setReferenceInvoiceIssueDateTime(LocalDateTime referenceInvoiceIssueDateTime) {
+        this.referenceInvoiceIssueDateTime = REF_INV_ISSUE_DT.validate(referenceInvoiceIssueDateTime);
+        return this;
+    }
 
-        this.referenceInvoiceIssueDateTime = referenceInvoiceIssueDateTime;
+    /**
+     * @see #setReferenceInvoiceIssueDateTime(LocalDateTime)
+     */
+    @JsonIgnore
+    public ReferenceInvoice setReferenceInvoiceIssueDateTime(Instant referenceInvoiceIssueDateTime) {
+        this.referenceInvoiceIssueDateTime = REF_INV_ISSUE_DT.validateAndConvert(referenceInvoiceIssueDateTime);
         return this;
     }
 
@@ -68,4 +77,7 @@ public class ReferenceInvoice {
         this.referenceInvoiceIdentifier = referenceInvoiceIdentifier;
         return this;
     }
+
+    private static final
+    DateTimeValidator REF_INV_ISSUE_DT = new DateTimeValidator("referenceInvoiceIssueDateTime");
 }

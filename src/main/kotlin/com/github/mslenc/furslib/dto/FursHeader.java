@@ -1,8 +1,8 @@
 package com.github.mslenc.furslib.dto;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.mslenc.furslib.FursEnv;
+import com.github.mslenc.furslib.validation.DateTimeValidator;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -20,11 +20,16 @@ public class FursHeader {
         setDateTime(dateTime);
     }
 
+    public FursHeader(UUID messageId, Instant dateTime) {
+        setMessageId(messageId);
+        setDateTime(dateTime);
+    }
+
     /**
      * Creates a header with a new message ID (random UUID) and the current time.
      */
     public FursHeader() {
-        this(UUID.randomUUID(), LocalDateTime.now(FursEnv.Companion.getEUROPE_LJUBLJANA()));
+        this(UUID.randomUUID(), Instant.now());
     }
 
     /**
@@ -76,18 +81,16 @@ public class FursHeader {
      */
     @JsonProperty("DateTime")
     public FursHeader setDateTime(LocalDateTime dateTime) {
-        if (dateTime == null)
-            throw new IllegalArgumentException("Null dateTime");
-
-        this.dateTime = dateTime;
+        this.dateTime = DATE_TIME.validate(dateTime);
         return this;
     }
 
-    @JsonProperty
+    @JsonIgnore
     public FursHeader setDateTime(Instant dateTime) {
-        if (dateTime == null)
-            throw new IllegalArgumentException("Null dateTime");
-
-        return setDateTime(LocalDateTime.ofInstant(dateTime, FursEnv.Companion.getEUROPE_LJUBLJANA()));
+        this.dateTime = DATE_TIME.validateAndConvert(dateTime);
+        return this;
     }
+
+    private static final
+    DateTimeValidator DATE_TIME = new DateTimeValidator("dateTime");
 }
