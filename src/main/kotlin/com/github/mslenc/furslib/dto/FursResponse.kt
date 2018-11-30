@@ -9,5 +9,8 @@ data class FursResponse(
     val echoResponse: String? = null,
 
     @JsonProperty("InvoiceResponse")
-    val invoiceResponse: InvoiceResponse? = null
+    val invoiceResponse: InvoiceResponse? = null,
+
+    @JsonProperty("BusinessPremiseResponse")
+    val businessPremiseResponse: BusinessPremiseResponse? = null
 )

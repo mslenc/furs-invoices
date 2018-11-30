@@ -9,5 +9,8 @@ data class FursRequest(
     val echoRequest: String? = null,
 
     @JsonProperty("InvoiceRequest")
-    val invoiceRequest: InvoiceRequest? = null
+    val invoiceRequest: InvoiceRequest? = null,
+
+    @JsonProperty("BusinessPremiseRequest")
+    val businessPremiseRequest: BusinessPremiseRequest? = null
 )

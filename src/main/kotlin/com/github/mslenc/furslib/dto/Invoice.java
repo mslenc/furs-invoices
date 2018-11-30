@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.mslenc.furslib.FursConfig;
 import com.github.mslenc.furslib.validation.AmountValidator;
 import com.github.mslenc.furslib.validation.DateTimeValidator;
+import com.github.mslenc.furslib.validation.StringValidator;
+import com.github.mslenc.furslib.validation.StringValidator.NullEmptyMode;
 import com.github.mslenc.furslib.validation.TaxNumberValidator;
 
 import java.math.BigDecimal;
@@ -16,6 +18,7 @@ import java.util.*;
 import static com.github.mslenc.furslib.UtilsKt.*;
 import static com.github.mslenc.furslib.validation.DecimalValidator.NullZeroMode.NO_NULLS;
 import static com.github.mslenc.furslib.validation.DecimalValidator.NullZeroMode.ZERO_TO_NULL;
+import static com.github.mslenc.furslib.validation.StringValidator.CharsAllowed.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.bouncycastle.util.encoders.Hex.toHexString;
@@ -212,7 +215,7 @@ public class Invoice {
      */
     @JsonProperty("CustomerVATNumber")
     public Invoice setCustomerVatNumber(String customerVatNumber) {
-        this.customerVatNumber = validate20CharTaxNumber(customerVatNumber, "customerVatNumber");
+        this.customerVatNumber = CUSTOMER_VAT_NUMBER.validate(customerVatNumber);
         return this;
     }
 
@@ -466,7 +469,7 @@ public class Invoice {
      */
     @JsonProperty("ProtectedID")
     public Invoice setProtectedId(String protectedId) {
-        this.protectedId = validateZoiFormat(protectedId);
+        this.protectedId = PROTECTED_ID.validate(protectedId);
         return this;
     }
 
@@ -589,6 +592,12 @@ public class Invoice {
 
     private static final
     TaxNumberValidator OPERATOR_TAX_NUMBER = new TaxNumberValidator("operatorTaxNumber", true);
+
+    private static final
+    StringValidator CUSTOMER_VAT_NUMBER = new StringValidator("customerVatNumber", 1, 20, VAT_ID_CHARS, NullEmptyMode.NO_NULLS);
+
+    private static final
+    StringValidator PROTECTED_ID = new StringValidator("protectedId", 32, 32, HEX, NullEmptyMode.NO_NULLS);
 
     private static final
     DateTimeValidator ISSUE_DATE_TIME = new DateTimeValidator("issueDateTime");

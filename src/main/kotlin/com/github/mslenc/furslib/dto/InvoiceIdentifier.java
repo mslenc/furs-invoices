@@ -1,8 +1,11 @@
 package com.github.mslenc.furslib.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.mslenc.furslib.validation.StringValidator;
 
-import java.util.regex.Pattern;
+import static com.github.mslenc.furslib.validation.StringValidator.CharsAllowed.ANY;
+import static com.github.mslenc.furslib.validation.StringValidator.CharsAllowed.ASCII_ALNUM;
+import static com.github.mslenc.furslib.validation.StringValidator.NullEmptyMode.NO_NULLS;
 
 public class InvoiceIdentifier {
     private String businessPremiseId = null;
@@ -39,7 +42,7 @@ public class InvoiceIdentifier {
      */
     @JsonProperty("BusinessPremiseID")
     public InvoiceIdentifier setBusinessPremiseId(String businessPremiseID) {
-        this.businessPremiseId = validateIdPart(businessPremiseID, "businessPremiseID");
+        this.businessPremiseId = BUSINESS_PREMISE_ID.validate(businessPremiseID);
         return this;
     }
 
@@ -60,7 +63,7 @@ public class InvoiceIdentifier {
      */
     @JsonProperty("ElectronicDeviceID")
     public InvoiceIdentifier setElectronicDeviceId(String electronicDeviceID) {
-        this.electronicDeviceId = validateIdPart(electronicDeviceID, "electronicDeviceID");
+        this.electronicDeviceId = ELECTRONIC_DEVICE_ID.validate(electronicDeviceID);
         return this;
     }
 
@@ -81,18 +84,16 @@ public class InvoiceIdentifier {
      */
     @JsonProperty("InvoiceNumber")
     public InvoiceIdentifier setInvoiceNumber(String invoiceNumber) {
-        this.invoiceNumber = validateIdPart(invoiceNumber, "invoiceNumber");
+        this.invoiceNumber = INVOICE_NUMBER.validate(invoiceNumber);
         return this;
     }
 
-    private static final Pattern ID_PART_PATTERN = Pattern.compile("^[a-zA-Z0-9]{1,20}$");
-    private static String validateIdPart(String value, String propertyName) {
-        if (value == null)
-            throw new IllegalArgumentException("Null " + propertyName);
+    static final
+    StringValidator BUSINESS_PREMISE_ID = new StringValidator("businessPremiseId", 1, 20, ASCII_ALNUM, NO_NULLS);
 
-        if (ID_PART_PATTERN.matcher(value).matches())
-            return value;
+    private static final
+    StringValidator ELECTRONIC_DEVICE_ID = new StringValidator("electronicDeviceId", 1, 20, ASCII_ALNUM, NO_NULLS);
 
-        throw new IllegalArgumentException("Invalid " + propertyName + " - it must be 1-20 ASCII alphanumeric characters");
-    }
+    private static final
+    StringValidator INVOICE_NUMBER = new StringValidator("invoiceNumber", 1, 20, ANY, NO_NULLS);
 }

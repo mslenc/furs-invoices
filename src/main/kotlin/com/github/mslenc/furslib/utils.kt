@@ -62,40 +62,6 @@ fun containsOU(expected: String): Predicate<X509Certificate> {
 }
 
 
-fun validate20CharTaxNumber(taxNumber: String, propertyName: String): String {
-    if (taxNumber.length !in 1..20)
-        throw IllegalArgumentException("$propertyName must be 1-20 characters")
-
-    for (i in 0 until taxNumber.length)
-        taxNumber[i].let {
-            if (!it.isValidVatIdChar())
-                throw IllegalArgumentException("$propertyName can only contain ASCII letters, digits and hyphens")
-        }
-
-    return taxNumber
-}
-
-private fun Char.isValidVatIdChar(): Boolean {
-    return (this in 'a'..'z') || (this in 'A'..'Z') || (this in '0'..'9')
-}
-
-fun validateZoiFormat(zoi: String?): String {
-    if (zoi == null)
-        throw IllegalArgumentException("null protectedId")
-
-    if (zoi.length != 32)
-        throw IllegalArgumentException("illegal protectedId length - it must be 32")
-
-    for (i in 0..31)
-        if (!zoi[i].isHexChar())
-            throw IllegalArgumentException("illegal protectedId length - it can only contain hexadecimal characters")
-
-    return zoi
-}
-
-private fun Char.isHexChar(): Boolean {
-    return (this in 'a'..'f') || (this in 'A'..'F') || (this in '0'..'9')
-}
 
 fun formatDateTimeForZoi(dateTime: LocalDateTime): String {
     val time = dateTime.toLocalTime().toString()

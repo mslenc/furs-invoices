@@ -3,6 +3,7 @@ package com.github.mslenc.furslib
 import com.github.mslenc.furslib.dto.*
 import com.github.mslenc.furslib.util.JSON
 import java.io.ByteArrayInputStream
+import java.io.IOException
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 import java.net.Proxy
@@ -54,22 +55,30 @@ class FursClientJavaNet(private val config: FursConfig, private val proxy: Proxy
         conn.doOutput = true
         conn.doInput = true
 
-        JSON.writeJson(tokenEnvelope, conn.outputStream)
+        conn.outputStream.use {
+            JSON.writeJson(tokenEnvelope, it)
+        }
 
-        val responseToken = JSON.parse(conn.inputStream, TokenEnvelope::class.java)
+        if (conn.responseCode >= 400) {
+            conn.errorStream.use {
+                throw IOException(it.readBytes().toString(UTF_8))
+            }
+        } else {
+            val responseToken = conn.inputStream.use { JSON.parse(it, TokenEnvelope::class.java) }
 
-        // TODO: validate signature
+            // TODO: validate signature
 
-        val firstDot = responseToken.token.indexOf('.')
-        val secondDot = responseToken.token.indexOf('.', firstDot + 1)
-        val payloadPart = responseToken.token.substring(firstDot + 1, secondDot)
-        val decodedPayload = Base64.getUrlDecoder().decode(payloadPart)
+            val firstDot = responseToken.token.indexOf('.')
+            val secondDot = responseToken.token.indexOf('.', firstDot + 1)
+            val payloadPart = responseToken.token.substring(firstDot + 1, secondDot)
+            val decodedPayload = Base64.getUrlDecoder().decode(payloadPart)
 
-        System.err.println("---------------------------------")
-        System.err.println(decodedPayload.toString(UTF_8))
-        System.err.println("---------------------------------")
+            System.err.println("---------------------------------")
+            System.err.println(decodedPayload.toString(UTF_8))
+            System.err.println("---------------------------------")
 
-        return JSON.parse(ByteArrayInputStream(decodedPayload), FursResponse::class.java)
+            return JSON.parse(ByteArrayInputStream(decodedPayload), FursResponse::class.java)
+        }
     }
 
     fun wrapInTokenForm(payload: FursRequest): TokenEnvelope {
@@ -102,11 +111,21 @@ class FursClientJavaNet(private val config: FursConfig, private val proxy: Proxy
         return res.echoResponse ?: throw IllegalStateException("No response in the message received")
     }
 
-    fun invoice(request: InvoiceRequest): String {
+    fun invoice(request: InvoiceRequest): UUID {
         val response = exchangeJsonAsToken(config.env.invoicesUrl, FursRequest(invoiceRequest = request))
 
         return response.invoiceResponse?.uniqueInvoiceId ?:
             throw response.invoiceResponse?.error?.toException("Missing uniqueInvoiceId in response") ?:
                   FursException(null, "Missing both uniqueInvoiceId and error in response")
+    }
+
+    fun businessPremise(request: BusinessPremise) {
+        val wrapper = BusinessPremiseRequest(request)
+
+        val response = exchangeJsonAsToken(config.env.premisesUrl, FursRequest(businessPremiseRequest = wrapper))
+
+        response.businessPremiseResponse?.error?.let {
+            throw it.toException("Unknown error")
+        }
     }
 }
