@@ -4,6 +4,7 @@ package com.github.mslenc.furslib.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.mslenc.furslib.FursEnv;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -80,5 +81,13 @@ public class FursHeader {
 
         this.dateTime = dateTime;
         return this;
+    }
+
+    @JsonProperty
+    public FursHeader setDateTime(Instant dateTime) {
+        if (dateTime == null)
+            throw new IllegalArgumentException("Null dateTime");
+
+        return setDateTime(LocalDateTime.ofInstant(dateTime, FursEnv.Companion.getEUROPE_LJUBLJANA()));
     }
 }

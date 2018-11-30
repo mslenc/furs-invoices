@@ -2,9 +2,9 @@ package com.github.mslenc.furslib.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.mslenc.furslib.DecimalValidator;
 import com.github.mslenc.furslib.FursConfig;
-import com.github.mslenc.furslib.UtilsKt;
+import com.github.mslenc.furslib.validation.AmountValidator;
+import com.github.mslenc.furslib.validation.TaxNumberValidator;
 
 import java.math.BigDecimal;
 import java.security.MessageDigest;
@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.github.mslenc.furslib.UtilsKt.*;
-import static java.math.BigDecimal.ZERO;
+import static com.github.mslenc.furslib.validation.DecimalValidator.NullZeroMode.NO_NULLS;
+import static com.github.mslenc.furslib.validation.DecimalValidator.NullZeroMode.ZERO_TO_NULL;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.bouncycastle.util.encoders.Hex.toHexString;
@@ -57,22 +58,30 @@ public class Invoice {
      *     invoice, is entered.
      * </blockquote>
      *
-     * @param taxNumber the new value (must be exactly 8 ASCII digits)
+     * @param taxNumber the new value (not null, must be exactly 8 digits)
      * @return this, for fluent interface
      */
     @JsonProperty("TaxNumber")
     public Invoice setTaxNumber(Integer taxNumber) {
-        this.taxNumber = UtilsKt.validate8DigitTaxNumber(taxNumber, "taxNumber");
+        this.taxNumber = TAX_NUMBER.validate(taxNumber);
         return this;
     }
 
-    public Invoice setTaxNumber(String taxNumber) {
-        if (taxNumber == null || taxNumber.isEmpty()) {
-            this.taxNumber = null;
-        } else {
-            this.taxNumber = UtilsKt.validate8DigitTaxNumber(taxNumber, "taxNumber");
-        }
+    /**
+     * @see #setTaxNumber(Integer)
+     */
+    @JsonIgnore
+    public Invoice setTaxNumber(int taxNumber) {
+        this.taxNumber = TAX_NUMBER.validate(taxNumber);
+        return this;
+    }
 
+    /**
+     * @see #setTaxNumber(Integer)
+     */
+    @JsonIgnore
+    public Invoice setTaxNumber(String taxNumber) {
+        this.taxNumber = TAX_NUMBER.validateAndConvert(taxNumber);
         return this;
     }
 
@@ -249,17 +258,12 @@ public class Invoice {
      *     entered.<br />
      *     The data is entered only if there are refunds on the invoice.
      * </blockquote>
-     * @param returnsAmount the new value (may be null; otherwise must be non-negative and at most 12.2 digits)
+     * @param returnsAmount the new value (may be null)
      * @return this, for fluent interface
      */
     @JsonProperty("ReturnsAmount")
     public Invoice setReturnsAmount(BigDecimal returnsAmount) {
-        if (returnsAmount == null || returnsAmount.compareTo(ZERO) == 0) {
-            this.returnsAmount = null;
-        } else {
-            this.returnsAmount = RETURNS_AMOUNT.validateAndNormalize(returnsAmount);
-        }
-
+        this.returnsAmount = RETURNS_AMOUNT.validateAndNormalize(returnsAmount);
         return this;
     }
 
@@ -268,12 +272,16 @@ public class Invoice {
      */
     @JsonIgnore
     public Invoice setReturnsAmount(double returnsAmount) {
-        if (returnsAmount == 0.0) {
-            this.returnsAmount = null;
-        } else {
-            this.returnsAmount = RETURNS_AMOUNT.validateAndConvert(returnsAmount);
-        }
+        this.returnsAmount = RETURNS_AMOUNT.validateAndConvert(returnsAmount);
+        return this;
+    }
 
+    /**
+     * @see #setReturnsAmount(BigDecimal)
+     */
+    @JsonIgnore
+    public Invoice setReturnsAmount(Double returnsAmount) {
+        this.returnsAmount = RETURNS_AMOUNT.validateAndConvert(returnsAmount);
         return this;
     }
 
@@ -388,29 +396,21 @@ public class Invoice {
      *     person liable is entered. <br />
      *     The data is not entered if the person has no Slovene tax number.
      * </blockquote>
-     * @param operatorTaxNumber the new value (null, empty or 8 digits)
+     * It seems that if there is no operator tax number, foreignOperator must be true.
+     * @param operatorTaxNumber the new value (null or 8 digits)
      */
     @JsonProperty("OperatorTaxNumber")
-    public Invoice setOperatorTaxNumber(String operatorTaxNumber) {
-        if (operatorTaxNumber == null || operatorTaxNumber.isEmpty()) {
-            this.operatorTaxNumber = null;
-        } else {
-            this.operatorTaxNumber = validate8DigitTaxNumber(operatorTaxNumber, "operatorTaxNumber");
-        }
+    public Invoice setOperatorTaxNumber(Integer operatorTaxNumber) {
+        this.operatorTaxNumber = OPERATOR_TAX_NUMBER.validate(operatorTaxNumber);
         return this;
     }
 
     /**
-     * @see #setOperatorTaxNumber(String)
+     * @see #setOperatorTaxNumber(Integer)
      */
     @JsonIgnore
-    public Invoice setOperatorTaxNumber(Integer operatorTaxNumber) {
-        if (operatorTaxNumber == null) {
-            this.operatorTaxNumber = null;
-        } else {
-            this.operatorTaxNumber = validate8DigitTaxNumber(operatorTaxNumber, "operatorTaxNumber");
-        }
-
+    public Invoice setOperatorTaxNumber(String operatorTaxNumber) {
+        this.operatorTaxNumber = OPERATOR_TAX_NUMBER.validateAndConvert(operatorTaxNumber);
         return this;
     }
 
@@ -576,8 +576,18 @@ public class Invoice {
         return new ArrayList<>(referenceInvoices);
     }
 
+    private static final
+    TaxNumberValidator TAX_NUMBER = new TaxNumberValidator("taxNumber", false);
 
-    private static final DecimalValidator INVOICE_AMOUNT = new DecimalValidator("invoiceAmount", 14, 2);
-    private static final DecimalValidator RETURNS_AMOUNT = new DecimalValidator("returnsAmount", 14, 2);
-    private static final DecimalValidator PAYMENT_AMOUNT = new DecimalValidator("paymentAmount", 14, 2);
+    private static final
+    TaxNumberValidator OPERATOR_TAX_NUMBER = new TaxNumberValidator("operatorTaxNumber", true);
+
+    private static final
+    AmountValidator INVOICE_AMOUNT = new AmountValidator("invoiceAmount", NO_NULLS);
+
+    private static final
+    AmountValidator PAYMENT_AMOUNT = new AmountValidator("paymentAmount", NO_NULLS);
+
+    private static final
+    AmountValidator RETURNS_AMOUNT = new AmountValidator("returnsAmount", ZERO_TO_NULL);
 }

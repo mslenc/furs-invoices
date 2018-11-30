@@ -2,9 +2,12 @@ package com.github.mslenc.furslib.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.mslenc.furslib.DecimalValidator;
+import com.github.mslenc.furslib.validation.AmountValidator;
+import com.github.mslenc.furslib.validation.TaxRateValidator;
 
 import java.math.BigDecimal;
+
+import static com.github.mslenc.furslib.validation.DecimalValidator.NullZeroMode.NO_NULLS;
 
 /**
  * Contains information about flat-rate compensation.
@@ -141,11 +144,11 @@ public class FlatRateCompensation {
 
 
     private static final
-    DecimalValidator FLAT_RATE_RATE = new DecimalValidator("flatRateRate", 5, 2);
+    TaxRateValidator FLAT_RATE_RATE = new TaxRateValidator("flatRateRate", NO_NULLS);
 
     private static final
-    DecimalValidator FLAT_RATE_TAXABLE_AMOUNT = new DecimalValidator("flatRateTaxableAmount", 14, 2);
+    AmountValidator FLAT_RATE_TAXABLE_AMOUNT = new AmountValidator("flatRateTaxableAmount", NO_NULLS);
 
     private static final
-    DecimalValidator FLAT_RATE_AMOUNT = new DecimalValidator("flatRateAmount", 14, 2);
+    AmountValidator FLAT_RATE_AMOUNT = new AmountValidator("flatRateAmount", NO_NULLS);
 }

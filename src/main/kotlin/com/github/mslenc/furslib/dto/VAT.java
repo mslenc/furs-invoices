@@ -2,9 +2,12 @@ package com.github.mslenc.furslib.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.mslenc.furslib.DecimalValidator;
+import com.github.mslenc.furslib.validation.AmountValidator;
+import com.github.mslenc.furslib.validation.TaxRateValidator;
 
 import java.math.BigDecimal;
+
+import static com.github.mslenc.furslib.validation.DecimalValidator.NullZeroMode.NO_NULLS;
 
 /**
  * Describes a VAT-taxed amount with a single tax rate (and single taxpayer).
@@ -140,11 +143,11 @@ public class VAT {
 
 
     private static final
-    DecimalValidator TAX_RATE = new DecimalValidator("taxRate", 5, 2);
+    TaxRateValidator TAX_RATE = new TaxRateValidator("taxRate", NO_NULLS);
 
     private static final
-    DecimalValidator TAXABLE_AMOUNT = new DecimalValidator("taxableAmount", 14, 2);
+    AmountValidator TAXABLE_AMOUNT = new AmountValidator("taxableAmount", NO_NULLS);
 
     private static final
-    DecimalValidator TAX_AMOUNT = new DecimalValidator("taxAmount", 14, 2);
+    AmountValidator TAX_AMOUNT = new AmountValidator("taxAmount", NO_NULLS);
 }

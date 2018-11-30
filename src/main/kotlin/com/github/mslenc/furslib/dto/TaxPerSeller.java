@@ -2,16 +2,15 @@ package com.github.mslenc.furslib.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.mslenc.furslib.DecimalValidator;
-import com.github.mslenc.furslib.UtilsKt;
+import com.github.mslenc.furslib.validation.AmountValidator;
+import com.github.mslenc.furslib.validation.TaxNumberValidator;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.github.mslenc.furslib.UtilsKt.validate8DigitTaxNumber;
-import static java.math.BigDecimal.ZERO;
+import static com.github.mslenc.furslib.validation.DecimalValidator.NullZeroMode.ZERO_TO_NULL;
 
 /**
  * Contains base and tax amounts and rates for a single taxpayer.
@@ -45,17 +44,12 @@ public class TaxPerSeller {
      *     invoice has not been issued in the name of and on behalf of another person,
      *     the data is not entered.
      * </blockquote>
-     * @param sellerTaxNumber the new value (may be null, empty, or 8 digits)
+     * @param sellerTaxNumber the new value (may be null or 8 digits)
      * @return this, for fluent interface
      */
     @JsonProperty("SellerTaxNumber")
     public TaxPerSeller setSellerTaxNumber(Integer sellerTaxNumber) {
-        if (sellerTaxNumber == null) {
-            this.sellerTaxNumber = null;
-        } else {
-            this.sellerTaxNumber = UtilsKt.validate8DigitTaxNumber(sellerTaxNumber, "sellerTaxNumber");
-        }
-
+        this.sellerTaxNumber = SELLER_TAX_NUMBER.validate(sellerTaxNumber);
         return this;
     }
 
@@ -64,12 +58,7 @@ public class TaxPerSeller {
      */
     @JsonIgnore
     public TaxPerSeller setSellerTaxNumber(String sellerTaxNumber) {
-        if (sellerTaxNumber == null || sellerTaxNumber.isEmpty()) {
-            this.sellerTaxNumber = null;
-        } else {
-            this.sellerTaxNumber = validate8DigitTaxNumber(sellerTaxNumber, "sellerTaxNumber");
-        }
-
+        this.sellerTaxNumber = SELLER_TAX_NUMBER.validateAndConvert(sellerTaxNumber);
         return this;
     }
 
@@ -166,23 +155,19 @@ public class TaxPerSeller {
 
     @JsonProperty("OtherTaxesAmount")
     public TaxPerSeller setOtherTaxesAmount(BigDecimal otherTaxesAmount) {
-        if (otherTaxesAmount == null || otherTaxesAmount.compareTo(ZERO) == 0) {
-            this.otherTaxesAmount = null;
-        } else {
-            this.otherTaxesAmount = OTHER_TAXES_AMOUNT.validateAndNormalize(otherTaxesAmount);
-        }
-
+        this.otherTaxesAmount = OTHER_TAXES_AMOUNT.validateAndNormalize(otherTaxesAmount);
         return this;
     }
 
     @JsonIgnore
     public TaxPerSeller setOtherTaxesAmount(double otherTaxesAmount) {
-        if (otherTaxesAmount == 0.0) {
-            this.otherTaxesAmount = null;
-        } else {
-            this.otherTaxesAmount = OTHER_TAXES_AMOUNT.validateAndConvert(otherTaxesAmount);
-        }
+        this.otherTaxesAmount = OTHER_TAXES_AMOUNT.validateAndConvert(otherTaxesAmount);
+        return this;
+    }
 
+    @JsonIgnore
+    public TaxPerSeller setOtherTaxesAmount(Double otherTaxesAmount) {
+        this.otherTaxesAmount = OTHER_TAXES_AMOUNT.validateAndConvert(otherTaxesAmount);
         return this;
     }
 
@@ -193,22 +178,20 @@ public class TaxPerSeller {
     }
 
     @JsonProperty("ExemptVATTaxableAmount")
-    public void setExemptVATTaxableAmount(BigDecimal exemptVatTaxableAmount) {
-        if (exemptVatTaxableAmount == null || exemptVatTaxableAmount.compareTo(ZERO) == 0) {
-            this.exemptVatTaxableAmount = null;
-        } else {
-            this.exemptVatTaxableAmount = EXEMPT_VAT_TAXABLE_AMOUNT.validateAndNormalize(exemptVatTaxableAmount);
-        }
+    public TaxPerSeller setExemptVATTaxableAmount(BigDecimal exemptVatTaxableAmount) {
+        this.exemptVatTaxableAmount = EXEMPT_VAT_TAXABLE_AMOUNT.validateAndNormalize(exemptVatTaxableAmount);
+        return this;
     }
 
     @JsonIgnore
     public TaxPerSeller setExemptVATTaxableAmount(double exemptVatTaxableAmount) {
-        if (exemptVatTaxableAmount == 0.0) {
-            this.exemptVatTaxableAmount = null;
-        } else {
-            this.exemptVatTaxableAmount = EXEMPT_VAT_TAXABLE_AMOUNT.validateAndConvert(exemptVatTaxableAmount);
-        }
+        this.exemptVatTaxableAmount = EXEMPT_VAT_TAXABLE_AMOUNT.validateAndConvert(exemptVatTaxableAmount);
+        return this;
+    }
 
+    @JsonIgnore
+    public TaxPerSeller setExemptVATTaxableAmount(Double exemptVatTaxableAmount) {
+        this.exemptVatTaxableAmount = EXEMPT_VAT_TAXABLE_AMOUNT.validateAndConvert(exemptVatTaxableAmount);
         return this;
     }
 
@@ -220,23 +203,19 @@ public class TaxPerSeller {
 
     @JsonProperty("ReverseVATTaxableAmount")
     public TaxPerSeller setReverseVatTaxableAmount(BigDecimal reverseVatTaxableAmount) {
-        if (reverseVatTaxableAmount == null || reverseVatTaxableAmount.compareTo(ZERO) == 0) {
-            this.reverseVatTaxableAmount = null;
-        } else {
-            this.reverseVatTaxableAmount = REVERSE_VAT_TAXABLE_AMOUNT.validateAndNormalize(reverseVatTaxableAmount);
-        }
-
+        this.reverseVatTaxableAmount = REVERSE_VAT_TAXABLE_AMOUNT.validateAndNormalize(reverseVatTaxableAmount);
         return this;
     }
 
     @JsonIgnore
     public TaxPerSeller setReverseVatTaxableAmount(double reverseVatTaxableAmount) {
-        if (reverseVatTaxableAmount == 0.0) {
-            this.reverseVatTaxableAmount = null;
-        } else {
-            this.reverseVatTaxableAmount = REVERSE_VAT_TAXABLE_AMOUNT.validateAndConvert(reverseVatTaxableAmount);
-        }
+        this.reverseVatTaxableAmount = REVERSE_VAT_TAXABLE_AMOUNT.validateAndConvert(reverseVatTaxableAmount);
+        return this;
+    }
 
+    @JsonIgnore
+    public TaxPerSeller setReverseVatTaxableAmount(Double reverseVatTaxableAmount) {
+        this.reverseVatTaxableAmount = REVERSE_VAT_TAXABLE_AMOUNT.validateAndConvert(reverseVatTaxableAmount);
         return this;
     }
 
@@ -248,23 +227,19 @@ public class TaxPerSeller {
 
     @JsonProperty("NontaxableAmount")
     public TaxPerSeller setNonTaxableAmount(BigDecimal nonTaxableAmount) {
-        if (nonTaxableAmount == null || nonTaxableAmount.compareTo(ZERO) == 0) {
-            this.nonTaxableAmount = null;
-        } else {
-            this.nonTaxableAmount = NON_TAXABLE_AMOUNT.validateAndNormalize(nonTaxableAmount);
-        }
-
+        this.nonTaxableAmount = NON_TAXABLE_AMOUNT.validateAndNormalize(nonTaxableAmount);
         return this;
     }
 
     @JsonIgnore
     public TaxPerSeller setNonTaxableAmount(double nonTaxableAmount) {
-        if (nonTaxableAmount == 0.0) {
-            this.nonTaxableAmount = null;
-        } else {
-            this.nonTaxableAmount = NON_TAXABLE_AMOUNT.validateAndConvert(nonTaxableAmount);
-        }
+        this.nonTaxableAmount = NON_TAXABLE_AMOUNT.validateAndConvert(nonTaxableAmount);
+        return this;
+    }
 
+    @JsonIgnore
+    public TaxPerSeller setNonTaxableAmount(Double nonTaxableAmount) {
+        this.nonTaxableAmount = NON_TAXABLE_AMOUNT.validateAndConvert(nonTaxableAmount);
         return this;
     }
 
@@ -276,39 +251,37 @@ public class TaxPerSeller {
 
     @JsonProperty("SpecialTaxRulesAmount")
     public TaxPerSeller setSpecialTaxRulesAmount(BigDecimal specialTaxRulesAmount) {
-        if (specialTaxRulesAmount == null || specialTaxRulesAmount.compareTo(ZERO) == 0) {
-            this.specialTaxRulesAmount = null;
-        } else {
-            this.specialTaxRulesAmount = SPECIAL_TAX_RULES_AMOUNT.validateAndNormalize(specialTaxRulesAmount);
-        }
-
+        this.specialTaxRulesAmount = SPECIAL_TAX_RULES_AMOUNT.validateAndNormalize(specialTaxRulesAmount);
         return this;
     }
 
     @JsonIgnore
     public TaxPerSeller setSpecialTaxRulesAmount(double specialTaxRulesAmount) {
-        if (specialTaxRulesAmount == 0.0) {
-            this.specialTaxRulesAmount = null;
-        } else {
-            this.specialTaxRulesAmount = SPECIAL_TAX_RULES_AMOUNT.validateAndConvert(specialTaxRulesAmount);
-        }
-
+        this.specialTaxRulesAmount = SPECIAL_TAX_RULES_AMOUNT.validateAndConvert(specialTaxRulesAmount);
         return this;
     }
 
+    @JsonIgnore
+    public TaxPerSeller setSpecialTaxRulesAmount(Double specialTaxRulesAmount) {
+        this.specialTaxRulesAmount = SPECIAL_TAX_RULES_AMOUNT.validateAndConvert(specialTaxRulesAmount);
+        return this;
+    }
 
     private static final
-    DecimalValidator OTHER_TAXES_AMOUNT = new DecimalValidator("otherTaxesAmount", 14, 2);
+    TaxNumberValidator SELLER_TAX_NUMBER = new TaxNumberValidator("sellerTaxNumber", true);
 
     private static final
-    DecimalValidator EXEMPT_VAT_TAXABLE_AMOUNT = new DecimalValidator("exemptVatTaxableAmount", 14, 2);
+    AmountValidator OTHER_TAXES_AMOUNT = new AmountValidator("otherTaxesAmount", ZERO_TO_NULL);
 
     private static final
-    DecimalValidator REVERSE_VAT_TAXABLE_AMOUNT = new DecimalValidator("reverseVatTaxableAmount", 14, 2);
+    AmountValidator EXEMPT_VAT_TAXABLE_AMOUNT = new AmountValidator("exemptVatTaxableAmount", ZERO_TO_NULL);
 
     private static final
-    DecimalValidator NON_TAXABLE_AMOUNT = new DecimalValidator("nonTaxableAmount", 14, 2);
+    AmountValidator REVERSE_VAT_TAXABLE_AMOUNT = new AmountValidator("reverseVatTaxableAmount", ZERO_TO_NULL);
 
     private static final
-    DecimalValidator SPECIAL_TAX_RULES_AMOUNT = new DecimalValidator("specialTaxRulesAmount", 14, 2);
+    AmountValidator NON_TAXABLE_AMOUNT = new AmountValidator("nonTaxableAmount", ZERO_TO_NULL);
+
+    private static final
+    AmountValidator SPECIAL_TAX_RULES_AMOUNT = new AmountValidator("specialTaxRulesAmount", ZERO_TO_NULL);
 }
