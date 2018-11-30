@@ -33,38 +33,7 @@ fun ByteArray.toReader(charset: Charset = StandardCharsets.UTF_8): Reader {
     return InputStreamReader(toStream(), charset)
 }
 
-object JSON {
-    private val jsonMapper = ObjectMapper()
 
-    init {
-        jsonMapper.registerModule(KotlinModule())
-        jsonMapper.registerModule(ParameterNamesModule())
-        jsonMapper.registerModule(Jdk8Module())
-        jsonMapper.registerModule(JavaTimeModule())
-
-        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        jsonMapper.configure(SerializationFeature.INDENT_OUTPUT, true)
-        jsonMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-
-        jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-    }
-
-    fun stringify(value: Any): String {
-        return jsonMapper.writeValueAsString(value)
-    }
-
-    fun writeJson(value: Any, out: OutputStream) {
-        jsonMapper.writeValue(out, value)
-    }
-
-    fun <T: Any> parse(value: String, klass: Class<T>): T {
-        return jsonMapper.readValue(value, klass) as T
-    }
-
-    fun <T: Any> parse(input: InputStream, klass: Class<T>): T {
-        return jsonMapper.readValue(input, klass) as T
-    }
-}
 
 val x509CertFactory = CertificateFactory.getInstance("X.509")!!
 

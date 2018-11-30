@@ -1,6 +1,7 @@
 package com.github.mslenc.furslib
 
 import com.github.mslenc.furslib.dto.*
+import com.github.mslenc.furslib.util.JSON
 import java.io.ByteArrayInputStream
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
