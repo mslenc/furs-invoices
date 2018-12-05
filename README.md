@@ -17,9 +17,12 @@ repositories {
 
 dependencies {
     ...
-    compile 'com.github.mslenc:furs-invoices:0.9.0'
+    compile 'com.github.mslenc:furs-invoices:0.9.1'
 }
 ```
+
+See the [jitpack.io](https://jitpack.io/#mslenc/furs-invoices) site for other
+build systems.
 
 ### Certificate conversion
 
@@ -97,6 +100,16 @@ Invoice invoice = new Invoice().
 
 UUID invoiceId = client.invoice(invoice);
 ```
+
+## Asynchronous client
+
+Since v0.9.1 there is also an asynchronous client version `FursClientAsync`. It is the same
+in all respects, except it uses a `HttpClientAsync` to execute HTTP requests and returns
+results as `CompletableFuture<>`. That way, it can be used in event-loop driven (non-blocking)
+environments, like Vert.X or Netty.
+
+Note that there is no default `HttpClientAsync` implementation, but it should be very easy
+to write one that matches your environment. 
 
 ## Miscellaneous
 

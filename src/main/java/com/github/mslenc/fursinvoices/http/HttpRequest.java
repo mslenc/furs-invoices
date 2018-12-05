@@ -4,6 +4,9 @@ import javax.net.ssl.SSLContext;
 import java.net.URL;
 import java.util.Map;
 
+/**
+ * Describes a HTTP request to be made (currently it will always be a POST with JSON content).
+ */
 public class HttpRequest {
     private final URL url;
     private final String method;
