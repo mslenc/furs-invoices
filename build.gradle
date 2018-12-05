@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'com.github.mslenc'
-version '1.0-SNAPSHOT'
+version '0.9.0'
 
 sourceCompatibility = 1.8
 
@@ -23,8 +23,6 @@ dependencies {
     compile 'org.bouncycastle:bcpkix-jdk15on:1.60'
 
     compile "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
-    compile "com.fasterxml.jackson.module:jackson-module-parameter-names:$jackson_version"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jackson_version"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
 
