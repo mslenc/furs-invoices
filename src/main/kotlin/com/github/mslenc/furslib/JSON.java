@@ -1,4 +1,4 @@
-package com.github.mslenc.furslib.util;
+package com.github.mslenc.furslib;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,10 +11,8 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
-public class JSON {
+class JSON {
     private JSON() {}
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -31,19 +29,15 @@ public class JSON {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 
-    public static String stringify(Object value) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(value);
+    static byte[] byteify(Object value) {
+        try {
+            return objectMapper.writeValueAsBytes(value);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
-    public static void writeJson(Object value, OutputStream out) throws IOException {
-        objectMapper.writeValue(out, value);
-    }
-
-    public static <T> T parse(String value, Class<T> klass) throws IOException {
-        return objectMapper.readValue(value, klass);
-    }
-
-    public static <T> T parse(InputStream input, Class<T> klass) throws IOException {
+    static <T> T parse(byte[] input, Class<T> klass) throws IOException {
         return objectMapper.readValue(input, klass);
     }
 }

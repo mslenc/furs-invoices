@@ -133,11 +133,12 @@ public class BusinessPremise {
 
     /** TODO */
     @JsonProperty("ValidityDate")
-    public void setValidityDate(LocalDate validityDate) {
+    public BusinessPremise setValidityDate(LocalDate validityDate) {
         if (validityDate == null)
             throw new IllegalArgumentException("null validityDate");
 
         this.validityDate = validityDate;
+        return this;
     }
 
 
@@ -153,8 +154,9 @@ public class BusinessPremise {
      * TODO
      */
     @JsonProperty("SpecialNotes")
-    public void setSpecialNotes(String specialNotes) {
+    public BusinessPremise setSpecialNotes(String specialNotes) {
         this.specialNotes = SPECIAL_NOTES.validate(specialNotes);
+        return this;
     }
 
 
@@ -164,8 +166,9 @@ public class BusinessPremise {
     }
 
     @JsonProperty("BPIdentifier")
-    public void setBpIdentifier(BPIdentifier bpIdentifier) {
+    public BusinessPremise setBpIdentifier(BPIdentifier bpIdentifier) {
         this.bpIdentifier = bpIdentifier;
+        return this;
     }
 
     private static final

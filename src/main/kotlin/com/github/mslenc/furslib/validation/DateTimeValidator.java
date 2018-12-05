@@ -27,6 +27,6 @@ public class DateTimeValidator {
         if (instant == null)
             throw new IllegalArgumentException("null " + propertyName);
 
-        return validate(LocalDateTime.ofInstant(instant, FursEnv.Companion.getEUROPE_LJUBLJANA()));
+        return validate(LocalDateTime.ofInstant(instant, FursEnv.EUROPE_LJUBLJANA));
     }
 }

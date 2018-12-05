@@ -3,6 +3,7 @@ package com.github.mslenc.furslib.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.mslenc.furslib.FursConfig;
+import com.github.mslenc.furslib.Utils;
 import com.github.mslenc.furslib.validation.AmountValidator;
 import com.github.mslenc.furslib.validation.DateTimeValidator;
 import com.github.mslenc.furslib.validation.StringValidator;
@@ -11,11 +12,12 @@ import com.github.mslenc.furslib.validation.TaxNumberValidator;
 
 import java.math.BigDecimal;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.github.mslenc.furslib.UtilsKt.*;
+import static com.github.mslenc.furslib.Utils.computeRS256;
 import static com.github.mslenc.furslib.validation.DecimalValidator.NullZeroMode.NO_NULLS;
 import static com.github.mslenc.furslib.validation.DecimalValidator.NullZeroMode.ZERO_TO_NULL;
 import static com.github.mslenc.furslib.validation.StringValidator.CharsAllowed.*;
@@ -474,7 +476,7 @@ public class Invoice {
     }
 
     @JsonIgnore
-    public Invoice computeProtectedId(FursConfig config) throws Exception {
+    public Invoice computeProtectedId(FursConfig config) {
         int taxNumber = requireNonNull(this.taxNumber, "Missing taxNumber");
         LocalDateTime issueDateTime = requireNonNull(this.issueDateTime, "Missing issueDateTime");
         InvoiceIdentifier id = requireNonNull(this.invoiceIdentifier, "Missing invoiceIdentifier");
@@ -484,11 +486,17 @@ public class Invoice {
         BigDecimal amount = requireNonNull(this.invoiceAmount, "Missing invoiceAmount");
         String amountString = amount.toPlainString();
 
-        String combined = taxNumber + formatDateTimeForZoi(issueDateTime) + invoiceNumber + premiseId + deviceId + amountString;
+        String combined = taxNumber + Utils.formatDateTimeForZoi(issueDateTime) + invoiceNumber + premiseId + deviceId + amountString;
 
         byte[] signResult = computeRS256(combined.getBytes(UTF_8), config.getPrivateKey());
 
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        MessageDigest md5;
+        try {
+            md5 = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+
         byte[] digest = md5.digest(signResult);
 
         String zoi = toHexString(digest);
