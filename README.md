@@ -1,4 +1,10 @@
-# Installation
+# furs-invoices
+
+This is a Java library for performing fiscal verification of invoices,
+as required in Slovenia by FURS (Financial Administration of Republic of 
+Slovenia).
+
+## Installation
 
 This library can be used in Maven or Gradle projects via jitpack.io. For example,
 for Gradle you'd do this:
@@ -15,7 +21,7 @@ dependencies {
 }
 ```
 
-## Certificate conversion
+### Certificate conversion
 
 Certificates from FURS are obtained in .p12 format. For various reasons this library 
 uses PEM format instead. To convert from the former to the latter, use `openssl` with
@@ -25,7 +31,7 @@ a command like:
 openssl pkcs12 -in 12345678-1.p12 -out 12345678-1.pem
 ```
 
-## Initial set-up
+### Initial set-up
 
 The library currently uses BouncyCastle, so it has to be installed with
 
@@ -54,7 +60,7 @@ FursClient client = FursClient.create(config, new HttpClientJavaNet());
 You could also use any other HTTP by simply implementing the one-method
 interface `HttpClient`.
 
-# Usage
+## Usage
 
 To use the library, simply call the methods available on the client. 
 For example, to register an individual electronic device "business 
@@ -92,7 +98,7 @@ Invoice invoice = new Invoice().
 UUID invoiceId = client.invoice(invoice);
 ```
 
-# Miscellaneous
+## Miscellaneous
 
 * Most fields have validation on the values, so that you can't send
   invalid values at all (an `IllegalArgumentException` is thrown).
@@ -110,7 +116,7 @@ UUID invoiceId = client.invoice(invoice);
   zone.
   
 
-# Licence
+## Licence
 
 This software is licensed under the GNU AGPLv3, obtainable at
 https://www.gnu.org/licenses/agpl-3.0.en.html
@@ -119,7 +125,7 @@ You can also obtain it under a commercial licence for a fee. Contact
 the author for details.
 
 
-### Just a small note for future maintenance
+##### Just a small note for future maintenance
   
 To update the bundled FURS certificates, when they change again, follow
 these steps:
