@@ -2,4 +2,4 @@
 .gradle
 out
 build
-src/main/kotlin/com/github/mslenc/furslib/RunTest.java
+src/main/java/com/github/mslenc/furslib/RunTest.java
